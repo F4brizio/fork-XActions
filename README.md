@@ -16,7 +16,7 @@ Unfollow everyone on X (Formerly Twitter) and or unfollow who doesn't follow you
 // 2. Open the Developer Console. (COMMAND+ALT+I on Mac)
 // 3. Paste this into the Developer Console and run it
 //
-// Last Updated: 30 October 2023
+// Last Updated: 18 Feb 2024
 (() => {
   const $followButtons = '[data-testid$="-unfollow"]';
   const $confirmButton = '[data-testid="confirmationSheetConfirm"]';
