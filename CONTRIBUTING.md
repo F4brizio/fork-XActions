@@ -102,3 +102,6 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 **Thank you for helping make XActions better!** ⚡
 
+## Code of Conduct
+
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).

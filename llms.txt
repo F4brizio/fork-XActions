@@ -1,0 +1,9 @@
+# XActions
+
+> ⚡ The Complete X/Twitter Automation Toolkit — Scrapers, MCP server for AI agents (Claude/GPT), CLI, browser scripts. No API fees. Open source. Unfollow people who don't follow back. Monitor real-time analytics. Auto follow, like, comment, scrape, without API.
+
+## Links
+
+- Repository: https://github.com/nirholas/XActions
+- Author: https://github.com/nirholas
+- Full documentation: https://raw.githubusercontent.com/nirholas/XActions/main/llms-full.txt
