@@ -118,7 +118,98 @@ Or use the [dashboard](https://xactions.app) for a visual interface.
 // Last Updated: January 2026
 (() => {
   const $followButtons = '[data-testid$="-unfollow"]';
-  const $confirmButton = '[data-testid="confirmationSheetConfirm"]';
+  const $confirmButton = '[data-testid="confirmationSheetConfirm"]'; // Confirm unfollow button
+  const $retryLimit = 3; // Maximum number of retries
+  const $sleepDuration = 1; // Sleep duration in seconds
+  
+  const retry = {
+    count: 0,
+    limit: $retryLimit,
+  };
+  
+  const scrollToTheBottom = () => window.scrollTo(0, document.body.scrollHeight);
+  const retryLimitReached = () => retry.count === retry.limit;
+  const addNewRetry = () => retry.count++;
+  
+  const sleep = ({ seconds }) =>
+    new Promise((proceed) => {
+      console.log(`WAITING FOR ${seconds} SECONDS...`);
+      setTimeout(proceed, seconds * 1000);
+    });
+  
+  const unfollowAll = async (followButtons) => {
+    console.log(`UNFOLLOWING ${followButtons.length} USERS...`);
+    await Promise.all(
+      followButtons.map(async (followButton) => {
+        followButton && followButton.click();
+        await sleep({ seconds: $sleepDuration });
+        const confirmButton = document.querySelector($confirmButton);
+        confirmButton && confirmButton.click();
+      })
+    );
+  };
+  
+  const nextBatch = async () => {
+    scrollToTheBottom();
+    await sleep({ seconds: 1 });
+  
+    let followButtons = Array.from(document.querySelectorAll($followButtons));
+    followButtons = followButtons.filter(b => b.parentElement?.parentElement?.querySelector('[data-testid="userFollowIndicator"]') === null)
+    const followButtonsWereFound = followButtons.length > 0;
+  
+    if (followButtonsWereFound) {
+      await unfollowAll(followButtons);
+      await sleep({ seconds: 2 });
+      return nextBatch();
+    } else {
+      addNewRetry();
+    }
+  
+    if (retryLimitReached()) {
+      console.log(`NO ACCOUNTS FOUND, SO I THINK WE'RE DONE`);
+      console.log(`RELOAD PAGE AND RE-RUN SCRIPT IF ANY WERE MISSED`);
+    } else {
+      await sleep({ seconds: 2 });
+      return nextBatch();
+    }
+  };
+  
+  nextBatch();
+})();
+
+
+---
+
+**Automated Daily Scraping**
+
+You can run the new daily scraper to fetch tweets for a list of users and store them incrementally in `data/accounts/` and `data/accounts-multimedia/`.
+
+- Script: `scripts/daily-tweets.js`
+- Input users list: `data/users.json` (array of usernames, e.g. `["RiCan42882"]`).
+- Run once (for testing):
+
+```bash
+node scripts/daily-tweets.js --once
+```
+
+- Continuous/daemon run: export `RUN_INTERVAL_HOURS` or run without `--once` to loop every 24 hours by default.
+
+- Cron example (runs daily at 03:00 UTC):
+
+```cron
+0 3 * * * cd /path/to/fork-XActions && /usr/bin/node scripts/daily-tweets.js --once >> /var/log/xactions-daily.log 2>&1
+```
+
+- PM2 example (keep process running):
+
+```bash
+npm install -g pm2
+pm2 start scripts/daily-tweets.js --name xactions-daily -- node-args="--experimental-policy" -- --once
+```
+
+Notes:
+- The script uses the existing scrapers in `src/scrapers` and will attempt to use the `authToken` stored by the CLI at `~/.xactions/config.json` (or `XACTIONS_AUTH_TOKEN` env var) to login via cookie when available.
+- Puppeteer/Chromium dependencies must be present in the host environment (see troubleshooting earlier in this README).
 
   const retry = {
     count: 0,
